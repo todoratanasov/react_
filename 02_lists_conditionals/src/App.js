@@ -39,7 +39,7 @@ class App extends Component {
     const doesShow = this.state.showPersons;
     this.setState({ showPersons: !doesShow });
   };
-
+  //всичко в render метода се изпълнява когато реакт рендерира или ререндерира компонента
   render() {
     const style = {
       backgroundColor: "white",
