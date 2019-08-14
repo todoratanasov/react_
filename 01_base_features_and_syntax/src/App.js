@@ -2,6 +2,7 @@
 //в случая си импортвам useState hook (всички hook започват с use)
 import React, { Component, useState } from "react";
 import "./App.css";
+import "./Person/Person.css";
 import Person from "./Person/Person";
 //това е класовия подход. Закоментирам го защото по-долу ще ползвам функционален компонент на това същото
 // class App extends Component {
@@ -91,11 +92,11 @@ const App = props => {
     ]
   });
 
-  const switchNameHandler = () => {
+  const switchNameHandler = function(newName) {
     setPersonsState({
       persons: [
         {
-          name: "Maximilian",
+          name: newName,
           age: 29
         },
         {
@@ -110,8 +111,28 @@ const App = props => {
     });
     personsState.persons[0].name = "Maximilian";
   };
+  const nameChangedHandler = event => {
+    console.log(event.target.value);
+    setPersonsState({
+      persons: [
+        {
+          name: "Max",
+          age: 29
+        },
+        {
+          name: event.target.value,
+          age: 30
+        },
+        {
+          name: "Stef",
+          age: 26
+        }
+      ]
+    });
+  };
   return (
     //защото не сме в клас вече не използваме this, за да си закачим медота switchNameHandler, а просто си го подаваме между скобите
+    //подавайки пропърти click всъщност така можем да подадем референция към метода в този компонент
     <div className="App">
       <h1>Hi, I'm a react app</h1>
       <Person
@@ -121,8 +142,16 @@ const App = props => {
       <Person
         name={personsState.persons[1].name}
         age={personsState.persons[1].age}
+        click={switchNameHandler}
+        // така подаваме отново метод от този компонент на друг
+        changed={nameChangedHandler}
       />
-      <button onClick={switchNameHandler}>Switch name</button>
+      {/* 
+      Това е един начин да се вика метод
+      <button onClick={switchNameHandler}>Switch name</button> */}
+      <button onClick={() => switchNameHandler("Maximilian!!!")}>
+        Switch name
+      </button>
       <Person
         name={personsState.persons[2].name}
         age={personsState.persons[2].age}
