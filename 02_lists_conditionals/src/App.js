@@ -5,33 +5,37 @@ import Person from "./Person/Person";
 class App extends Component {
   state = {
     persons: [
-      { name: "Max", age: 28 },
-      { name: "Manu", age: 29 },
-      { name: "Stephanie", age: 26 }
+      { id: "1", name: "Max", age: 28 },
+      { id: "2", name: "Manu", age: 29 },
+      { id: "3", name: "Stephanie", age: 26 }
     ],
     otherState: "some other value",
     showPersons: false
   };
-
-  switchNameHandler = newName => {
-    // console.log('Was clicked!');
-    // DON'T DO THIS: this.state.persons[0].name = 'Maximilian';
-    this.setState({
-      persons: [
-        { name: newName, age: 28 },
-        { name: "Manu", age: 29 },
-        { name: "Stephanie", age: 27 }
-      ]
-    });
+  //по този начин си взимам persons от state-а, изваждам със splice намиращото се на този индекс нещо и после отново set-вам стейта, а с това си викам и рендер метода
+  deletePersonHandler = personIndex => {
+    //със slice без аргументи си създаваме копие на масива от state-a, за да можем него да си манипулираме
+    const persons = this.state.persons.slice();
+    persons.splice(personIndex, 1);
+    //след като сме изманипулирали масива просто си го запазваме отново в state-a
+    this.setState(persons);
   };
 
-  nameChangedHandler = event => {
+  nameChangedHandler = (event, id) => {
+    const personIndex = this.state.persons.findIndex(p => {
+      return p.id == id;
+    });
+    //тук използвайки spread оператора ( ... ) ще вземе всичко, което има в стейта и ще създаде копие
+    const person = {
+      ...this.state.persons[personIndex]
+    };
+    person.name = event.target.value;
+    //тук отново си правим пълно копие на state-а по този начин, променяме само това, кеото икаме
+    const persons = [...this.state.perons];
+    persons[personIndex] = person;
+    //и тук вече си сетваме новия стейт
     this.setState({
-      persons: [
-        { name: "Max", age: 28 },
-        { name: event.target.value, age: 29 },
-        { name: "Stephanie", age: 26 }
-      ]
+      persons
     });
   };
 
@@ -52,24 +56,20 @@ class App extends Component {
     let persons = null;
 
     if (this.state.showPersons) {
+      //тук итерираме през стейта и с map връщаме за всеки person по една попълнена компонента Person
       persons = (
         <div>
-          <Person
-            name={this.state.persons[0].name}
-            age={this.state.persons[0].age}
-          />
-          <Person
-            name={this.state.persons[1].name}
-            age={this.state.persons[1].age}
-            click={this.switchNameHandler.bind(this, "Max!")}
-            changed={this.nameChangedHandler}
-          >
-            My Hobbies: Racing
-          </Person>
-          <Person
-            name={this.state.persons[2].name}
-            age={this.state.persons[2].age}
-          />
+          {this.state.persons.map((person, index) => {
+            return (
+              <Person
+                key={person.id}
+                name={person.name}
+                age={person.age}
+                click={() => this.deletePersonHandler(index)}
+                changed={event => this.nameChangedHandler(event, person.id)}
+              />
+            );
+          })}
         </div>
       );
     }
