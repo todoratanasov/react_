@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import "./App.css";
 import Persons from "../Components/Persons/Persons";
-import Cockpit from "../Components/Cockpit/Cockpit"
+import Cockpit from "../Components/Cockpit/Cockpit";
+import AuthContext from "../Context/auth-context";
+
 class App extends Component {
   //ПЪРВО конструктора си е винаги първи в изпълнението
   constructor(props){
@@ -14,7 +16,9 @@ class App extends Component {
         { id: "3", name: "Stephanie", age: 26 }
       ],
       otherState: "some other value",
-      showPersons: false
+      showPersons: false,
+      updateCounter: 0,
+      authenticated: false
     };
   }
 
@@ -60,10 +64,24 @@ class App extends Component {
     const persons = [...this.state.persons];
     persons[personIndex] = person;
     //и тук вече си сетваме новия стейт
-    this.setState({
-      persons
+    // this.setState({
+    //   persons
+    // });
+
+    //друг начин да се променя стейта и той е по-коректен когато имам нужда от точност е да се подаде като функция, която да получи като аргумент предишния стейт:
+    this.setState((prevState, props)=>{
+      return {
+        persons,
+        changeCounter: prevState.changeCounter+1
+      }
     });
   };
+
+  loginHandler(){
+    this.setState({
+      authenticated: true,
+    })
+  }
 
   togglePersonsHandler = () => {
     const doesShow = this.state.showPersons;
@@ -86,14 +104,16 @@ class App extends Component {
         
       );
     }
-
+//wrap-вайки всичко в AuthContext.Provider всъщност казваме, че всички компоненти навътре ще имат достъп до контекста, който сме си създали. Във value си подаваме стойност, която ще бъде присвоена в контекста. В случая подаваме нещо от този стейт
     return (
       <div className="App">
-        <Cockpit showPersons={this.state.showPersons}
-        persons={this.state.persons}
-        clicked={this.togglePersonsHandler}
-        />
-        {persons}
+        <AuthContext.Provider value={{authenticated: this.state.authenticated, login: this.loginHandler}}>
+          <Cockpit showPersons={this.state.showPersons}
+          persons={this.state.persons}
+          clicked={this.togglePersonsHandler}
+          />
+          {persons}
+        </AuthContext.Provider>
       </div>
     );
     // return React.createElement('div', {className: 'App'}, React.createElement('h1', null, 'Does this work now?'));
